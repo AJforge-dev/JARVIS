@@ -21,7 +21,6 @@ import { PlanExecutor } from './services/tools/executor';
 import { SafetyManager } from './services/tools/safety';
 import { toolRegistry } from './services/tools/registry';
 import { ExecutionPlan } from './services/tools/types';
-import { Minus, Square, X } from 'lucide-react';
 
 const router = new LLMRouter();
 const safetyManager = new SafetyManager();
@@ -334,29 +333,8 @@ export const App: React.FC = () => {
     <div className="flex flex-col h-screen w-screen bg-[#070a0f] text-slate-100 overflow-hidden select-none font-sans">
       {/* Frameless Window Custom Titlebar with "• Private" status badge */}
       <header className="titlebar-drag h-9 bg-[#070a0f] border-b border-[#141b27] flex items-center justify-between px-4 z-40">
-        <div className="flex items-center gap-2">
-          {/* Window control placeholders */}
-          <div className="titlebar-nodrag flex items-center gap-2">
-            <button
-              onClick={() => window.electronAPI.minimize()}
-              className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
-            >
-              <Minus size={12} />
-            </button>
-            <button
-              onClick={() => window.electronAPI.maximize()}
-              className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
-            >
-              <Square size={10} />
-            </button>
-            <button
-              onClick={() => window.electronAPI.close()}
-              className="p-1 rounded hover:bg-red-500/20 text-slate-400 hover:text-red-400 transition-colors"
-            >
-              <X size={12} />
-            </button>
-          </div>
-        </div>
+        {/* Left spacing for native macOS traffic lights (red, yellow, green) */}
+        <div className="w-16" />
 
         {/* Private Privacy Status Badge */}
         <div className="titlebar-nodrag flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-medium text-emerald-400">
