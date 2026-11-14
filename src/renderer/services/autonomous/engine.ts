@@ -30,7 +30,88 @@ export class AutonomousEngine {
       return;
     }
 
-    // 2. OPEN APPLICATIONS (Chrome, Snapchat, WhatsApp, Telegram, Spotify, Terminal, VS Code, etc.)
+    // 2. PLAY MEDIA & WEB SEARCH (Exact jarvis-ai-assistant SmartBrowser & AppLauncher features)
+    if (userText.startsWith('play ') || userText.includes('on youtube') || userText.includes('on spotify')) {
+      let query = userText.replace(/^play\s+/i, '').trim();
+      if (userText.includes('on youtube') || userText.includes('youtube')) {
+        query = query.replace(/on youtube|youtube/gi, '').trim();
+        const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+        yield {
+          type: 'tool_call',
+          toolCall: {
+            id: `call_${Date.now()}`,
+            name: 'open_url',
+            arguments: { url }
+          }
+        };
+        const reply = `Playing ${query} on YouTube for you, AK.`;
+        for (const token of reply.split(' ')) {
+          yield { type: 'token', content: token + ' ' };
+          await new Promise(r => setTimeout(r, 20));
+        }
+        return;
+      }
+
+      if (userText.includes('on spotify') || userText.includes('spotify')) {
+        query = query.replace(/on spotify|spotify/gi, '').trim();
+        const url = `https://open.spotify.com/search/${encodeURIComponent(query)}`;
+        yield {
+          type: 'tool_call',
+          toolCall: {
+            id: `call_${Date.now()}`,
+            name: 'open_url',
+            arguments: { url }
+          }
+        };
+        const reply = `Searching and playing ${query} on Spotify, AK.`;
+        for (const token of reply.split(' ')) {
+          yield { type: 'token', content: token + ' ' };
+          await new Promise(r => setTimeout(r, 20));
+        }
+        return;
+      }
+    }
+
+    // SEARCH ENGINES (Google, Amazon)
+    if (userText.startsWith('search for ') || userText.startsWith('google ') || userText.includes('on amazon')) {
+      if (userText.includes('amazon')) {
+        const item = userText.replace(/search amazon for|search for|buy|on amazon|amazon/gi, '').trim();
+        const url = `https://www.amazon.com/s?k=${encodeURIComponent(item)}`;
+        yield {
+          type: 'tool_call',
+          toolCall: {
+            id: `call_${Date.now()}`,
+            name: 'open_url',
+            arguments: { url }
+          }
+        };
+        const reply = `Searching Amazon for ${item}, AK.`;
+        for (const token of reply.split(' ')) {
+          yield { type: 'token', content: token + ' ' };
+          await new Promise(r => setTimeout(r, 20));
+        }
+        return;
+      }
+
+      const q = userText.replace(/search for|google|search/gi, '').trim();
+      const url = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+      yield {
+        type: 'tool_call',
+        toolCall: {
+          id: `call_${Date.now()}`,
+          name: 'open_url',
+          arguments: { url }
+        }
+      };
+      const reply = `Searching Google for "${q}", AK.`;
+      for (const token of reply.split(' ')) {
+        yield { type: 'token', content: token + ' ' };
+        await new Promise(r => setTimeout(r, 20));
+      }
+      return;
+    }
+
+    // 3. OPEN APPLICATIONS (Chrome, Snapchat, WhatsApp, Telegram, Spotify, Terminal, VS Code, etc.)
     const openMatch = userText.match(/(?:open|launch|start|show)\s+(.+)/i);
     if (openMatch) {
       const target = openMatch[1].trim();
