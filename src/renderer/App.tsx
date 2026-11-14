@@ -15,6 +15,7 @@ import { audioRecorder } from './voice/audioRecorder';
 import { sttEngine } from './voice/stt';
 import { ttsEngine } from './voice/tts';
 import { wakeWordListener } from './voice/wakeword';
+import { soundEffects } from './voice/soundEffects';
 import { LLMRouter, ProviderSettings, defaultProviderSettings, TaskMode } from './services/providers/router';
 import { PlanExecutor } from './services/tools/executor';
 import { SafetyManager } from './services/tools/safety';
@@ -160,6 +161,9 @@ export const App: React.FC = () => {
 
     const cleanupSTT = sttEngine.onEvent((event: any) => {
       if (event.type === 'interim') {
+        if (ttsEngine.isSpeaking()) {
+          ttsEngine.stop(); // Immediate barge-in
+        }
         setCurrentInterim(event.text);
         updateState('listening', event.text);
       } else if (event.type === 'final') {
@@ -189,6 +193,7 @@ export const App: React.FC = () => {
 
   const handleStartListening = async () => {
     try {
+      soundEffects.playDictationStart();
       await audioRecorder.start();
       sttEngine.setLanguage(selectedLanguage);
       sttEngine.start();
@@ -199,6 +204,7 @@ export const App: React.FC = () => {
   };
 
   const handleStopListening = () => {
+    soundEffects.playDictationEnd();
     sttEngine.stop();
     audioRecorder.stop();
     updateState('idle');
