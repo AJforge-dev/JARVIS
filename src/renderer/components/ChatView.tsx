@@ -32,6 +32,7 @@ interface ChatViewProps {
   streamingText: string;
   isStreaming: boolean;
   assistantState: OrbState;
+  audioLevel?: number;
   activePlan: ExecutionPlan | null;
   onSendMessage: (text: string, mode: TaskMode) => void;
   onStartListening: () => void;
@@ -51,6 +52,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
   streamingText,
   isStreaming,
   assistantState,
+  audioLevel = 0,
   activePlan,
   onSendMessage,
   onStartListening,
@@ -61,7 +63,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
   selectedLanguage,
   onLanguageChange,
   hasApiKey = false,
-  activeProviderName = 'Autonomous Core',
+  activeProviderName = 'Ollama Local + Antigravity',
   onOpenSettings
 }) => {
   const [inputText, setInputText] = useState('');
@@ -181,45 +183,52 @@ export const ChatView: React.FC<ChatViewProps> = ({
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {messages.length === 0 && !streamingText && (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 max-w-2xl mx-auto my-auto">
-            {/* Center Animated Orb Hero */}
-            <div className="relative group cursor-pointer" onClick={isListening ? onStopListening : onStartListening}>
-              <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300 animate-pulse" />
-              <Orb state={assistantState} size={96} />
+            {/* Center Animated Spreading Neural Network Hero */}
+            <div className="relative cursor-pointer transition-transform duration-300 hover:scale-105" onClick={isListening ? onStopListening : onStartListening}>
+              <Orb state={assistantState} size={180} audioLevel={audioLevel} />
             </div>
 
-            <h3 className="mt-6 text-xl font-semibold text-white tracking-tight">
-              Good afternoon, AK
+            <div className="mt-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-[11px] font-mono text-emerald-400 font-semibold tracking-wider uppercase">
+                Ollama Local Server Active · Antigravity Self-Trained
+              </span>
+            </div>
+
+            <h3 className="mt-2 text-2xl font-bold text-white tracking-tight font-sans">
+              JARVIS Tactical Core
             </h3>
-            <p className="mt-2 text-sm text-slate-400 max-w-md leading-relaxed">
-              I am Jarvis — your voice-first AI partner. Click the orb, press the mic, or type any autonomous action below.
+            <p className="mt-1 text-xs text-slate-400 max-w-md leading-relaxed">
+              Say <strong className="text-cyan-400">"Hey JARVIS"</strong> to activate hands-free. Voice wake is continuous (no touch required).
             </p>
 
             {/* Quick Action Suggestion Chips */}
-            <div className="mt-8 flex flex-wrap justify-center gap-2 max-w-lg">
+            <div className="mt-6 flex flex-wrap justify-center gap-2 max-w-lg">
               {suggestionChips.map((chip, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleChipClick(chip.prompt)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-medium bg-[#0f172a]/90 hover:bg-[#1e293b] border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-200 transition-all duration-200 shadow-sm"
+                  className="px-3.5 py-2 rounded-xl text-xs font-medium bg-[#0b101b] hover:bg-[#151c27] border border-slate-800 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-200 transition-all duration-200 shadow-sm"
                 >
                   {chip.label}
                 </button>
               ))}
             </div>
 
-            {/* Free Tier Info Footnote */}
-            {!hasApiKey && (
-              <div className="mt-8 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-[12px] text-slate-400 flex items-center gap-2">
-                <Sparkles size={14} className="text-amber-400 shrink-0" />
-                <span>Running on <strong>Jarvis Autonomous Core</strong> (100% local & free).</span>
-                <button
-                  onClick={onOpenSettings}
-                  className="text-cyan-400 hover:underline font-medium inline-flex items-center gap-0.5 ml-1"
-                >
-                  Connect Gemini Free Key <ExternalLink size={10} />
-                </button>
-              </div>
-            )}
+            {/* Tactical Status Banner */}
+            <div className="mt-6 p-2.5 rounded-xl bg-[#090d15] border border-slate-800/80 text-[11px] text-slate-400 flex items-center gap-3">
+              <span className="flex items-center gap-1 text-cyan-400">
+                <Zap size={12} /> Aggressive Voice Speech Ready
+              </span>
+              <span className="text-slate-600">|</span>
+              <span className="flex items-center gap-1 text-emerald-400">
+                <CheckCircle2 size={12} /> Voice Trigger Only (Touch Off)
+              </span>
+              <span className="text-slate-600">|</span>
+              <button onClick={onOpenSettings} className="text-slate-300 hover:text-white underline">
+                Configure Ollama
+              </button>
+            </div>
           </div>
         )}
 

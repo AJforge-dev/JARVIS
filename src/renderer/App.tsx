@@ -31,6 +31,7 @@ export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<MainNavTab>('talk');
   const [settingsSubTab, setSettingsSubTab] = useState<SettingsSubTab>('your-jarvis');
   const [assistantState, setAssistantState] = useState<OrbState>('idle');
+  const [audioLevel, setAudioLevel] = useState(0);
   const [messages, setMessages] = useState<Message[]>([]);
   const [streamingText, setStreamingText] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -152,6 +153,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     audioRecorder.onVolumeChange((vol: number) => {
+      setAudioLevel(vol);
       if (assistantStateRef.current === 'speaking' && vol > 0.22) {
         ttsEngine.stop();
         updateState('listening');
@@ -179,7 +181,12 @@ export const App: React.FC = () => {
     if (wakeWordEnabled && !isDictationActive) {
       wakeWordListener.start(() => {
         ttsEngine.stop();
-        handleStartListening();
+        soundEffects.playDictationStart();
+        ttsEngine.speak('JARVIS online. Standing by, AK.', {
+          onEnd: () => {
+            handleStartListening();
+          }
+        });
       });
     } else {
       wakeWordListener.stop();
@@ -380,6 +387,7 @@ export const App: React.FC = () => {
               streamingText={streamingText}
               isStreaming={isStreaming}
               assistantState={assistantState}
+              audioLevel={audioLevel}
               activePlan={activePlan}
               onSendMessage={(text, mode) => handleUserSpeech(text)}
               onStartListening={handleStartListening}

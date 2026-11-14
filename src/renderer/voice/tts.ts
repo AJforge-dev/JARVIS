@@ -10,6 +10,15 @@ export interface VoiceProfile {
 
 export const JARVIS_VOICE_PROFILES: VoiceProfile[] = [
   {
+    id: 'jarvis-aggressive',
+    name: 'JARVIS Prime',
+    gender: 'm',
+    style: 'aggressive & commanding',
+    previewSample: "Systems primed, AK. Give the order and I will execute without hesitation.",
+    rate: 1.18,
+    pitch: 0.92
+  },
+  {
     id: 'puck-playful',
     name: 'Default (Puck)',
     gender: 'm',
@@ -19,21 +28,12 @@ export const JARVIS_VOICE_PROFILES: VoiceProfile[] = [
     pitch: 1.05
   },
   {
-    id: 'puck-upbeat',
-    name: 'Puck',
-    gender: 'm',
-    style: 'upbeat',
-    previewSample: "All systems online and running at peak performance, AK!",
-    rate: 1.1,
-    pitch: 1.1
-  },
-  {
     id: 'charon-informative',
     name: 'Charon',
     gender: 'm',
     style: 'informative',
     previewSample: "Good afternoon AK. Here is your daily intelligence briefing.",
-    rate: 0.98,
+    rate: 1.0,
     pitch: 0.88
   },
   {
@@ -42,44 +42,17 @@ export const JARVIS_VOICE_PROFILES: VoiceProfile[] = [
     gender: 'm',
     style: 'excitable',
     previewSample: "Executing that right now, AK. Command dispatched!",
-    rate: 1.12,
+    rate: 1.15,
     pitch: 1.0
-  },
-  {
-    id: 'orus-firm',
-    name: 'Orus',
-    gender: 'm',
-    style: 'firm',
-    previewSample: "Acknowledged. Routine confirmed and secured.",
-    rate: 0.95,
-    pitch: 0.82
   },
   {
     id: 'aoede-breezy',
     name: 'Aoede',
     gender: 'f',
     style: 'breezy',
-    previewSample: "Everything looks clear on your calendar for today, AK.",
-    rate: 1.02,
+    previewSample: "All neural network channels active and responsive, AK.",
+    rate: 1.05,
     pitch: 1.1
-  },
-  {
-    id: 'kore-firm',
-    name: 'Kore',
-    gender: 'f',
-    style: 'firm',
-    previewSample: "All background tasks completed with zero errors, AK.",
-    rate: 1.0,
-    pitch: 1.0
-  },
-  {
-    id: 'leda-youthful',
-    name: 'Leda',
-    gender: 'f',
-    style: 'youthful',
-    previewSample: "Hey! Ready whenever you are. Let's do this!",
-    rate: 1.08,
-    pitch: 1.15
   }
 ];
 
@@ -88,7 +61,7 @@ export class TTSEngine {
   private currentUtterance: SpeechSynthesisUtterance | null = null;
   private voices: SpeechSynthesisVoice[] = [];
   private onVoicesReadyCallbacks: Array<(voices: SpeechSynthesisVoice[]) => void> = [];
-  private activeVoiceId = 'puck-playful';
+  private activeVoiceId = 'jarvis-aggressive'; // Default to Aggressive JARVIS
 
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -138,10 +111,13 @@ export class TTSEngine {
     if (!this.synth) return;
     this.stop();
 
-    // Strip markdown formatting before speaking
-    const cleanText = text
-      .replace(/```[\s\S]*?```/g, 'Code block omitted.')
+    // Clean text and make delivery punchy and assertive
+    let cleanText = text
+      .replace(/```[\s\S]*?```/g, 'Code block generated.')
       .replace(/[*_#`~[\]()]/g, '')
+      .replace(/\bi think\b/gi, 'Tactical analysis confirms')
+      .replace(/\bmaybe\b/gi, 'Affirmative')
+      .replace(/\bi would suggest\b/gi, 'Directive:')
       .trim();
 
     if (!cleanText) {
@@ -150,29 +126,27 @@ export class TTSEngine {
     }
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    const profile = JARVIS_VOICE_PROFILES.find(p => p.id === this.activeVoiceId);
+    const profile = JARVIS_VOICE_PROFILES.find(p => p.id === this.activeVoiceId) || JARVIS_VOICE_PROFILES[0];
 
-    // Pick best matching system voice
+    // Aggressive voice selection: prefer authoritative masculine commanding voices
     if (options?.voiceURI) {
       const v = this.voices.find(voice => voice.voiceURI === options.voiceURI);
       if (v) utterance.voice = v;
     } else if (this.voices.length > 0) {
-      const targetGender = profile?.gender ?? 'm';
       const preferred = this.voices.find(v => {
         const n = v.name.toLowerCase();
-        if (targetGender === 'm') {
-          return n.includes('daniel') || n.includes('alex') || n.includes('oliver') || n.includes('male');
-        } else {
-          return n.includes('samantha') || n.includes('karen') || n.includes('ava') || n.includes('female');
+        if (profile.id === 'jarvis-aggressive') {
+          return n.includes('daniel') || n.includes('fred') || n.includes('alex') || n.includes('oliver') || n.includes('tom');
         }
+        return n.includes('daniel') || n.includes('alex') || n.includes('samantha');
       });
       if (preferred) {
         utterance.voice = preferred;
       }
     }
 
-    utterance.rate = options?.rate ?? (profile?.rate ?? 1.05);
-    utterance.pitch = options?.pitch ?? (profile?.pitch ?? 1.0);
+    utterance.rate = options?.rate ?? profile.rate;
+    utterance.pitch = options?.pitch ?? profile.pitch;
 
     utterance.onend = () => {
       this.currentUtterance = null;

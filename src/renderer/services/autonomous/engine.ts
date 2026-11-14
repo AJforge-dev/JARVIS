@@ -1,4 +1,5 @@
 import { ChatMessage, LLMEvent, ToolDefinition } from '../providers/types';
+import { antigravityTrainer } from './antigravityTrainer';
 
 export class AutonomousEngine {
   public static async *process(
@@ -11,21 +12,27 @@ export class AutonomousEngine {
     // Small delay to simulate natural conversational pacing
     yield { type: 'token', content: '' };
 
-    // 1. GREETINGS & WAKE WORD
+    // Record interaction into Antigravity Self-Training loop
+    antigravityTrainer.recordInteraction(userText);
+
+    // 1. GREETINGS & WAKE WORD (Aggressive, authoritative JARVIS delivery)
     if (
       userText === 'hey jarvis' ||
       userText === 'hi jarvis' ||
       userText === 'hello jarvis' ||
+      userText === 'wake up jarvis' ||
+      userText === 'jarvis wake up' ||
+      userText === 'jarvis' ||
       userText === 'hello' ||
       userText === 'hi' ||
       userText === 'who are you' ||
       userText === 'what can you do'
     ) {
-      const greeting = `Hello AK. I'm Jarvis, your voice-first AI partner. All systems are operational.\n\nI can execute desktop automation, open applications (Chrome, Snapchat, WhatsApp, Telegram), control system settings, write code, run routines, and manage your day-to-day workflow. What would you like me to do?`;
+      const greeting = `JARVIS online. All neural cores primed and standing by, AK. State your directive and I will execute immediately.`;
       
       for (const token of greeting.split(' ')) {
         yield { type: 'token', content: token + ' ' };
-        await new Promise(r => setTimeout(r, 20));
+        await new Promise(r => setTimeout(r, 16));
       }
       return;
     }

@@ -111,10 +111,10 @@ export class LLMRouter {
 }
 
 export const defaultProviderSettings: ProviderSettings = {
-  primaryProvider: 'gemini',
-  fallbackOrder: ['gemini', 'openai', 'anthropic', 'ollama'],
-  fastProvider: 'gemini',
-  smartProvider: 'anthropic',
+  primaryProvider: 'ollama',
+  fallbackOrder: ['ollama', 'gemini', 'openai', 'anthropic'],
+  fastProvider: 'ollama',
+  smartProvider: 'ollama',
   configs: {
     anthropic: {
       model: 'claude-3-5-sonnet-20241022',
@@ -129,7 +129,7 @@ export const defaultProviderSettings: ProviderSettings = {
       temperature: 0.7
     },
     ollama: {
-      model: 'llama3.1:8b',
+      model: 'llama3.2:latest',
       baseUrl: 'http://127.0.0.1:11434',
       temperature: 0.7
     }
